@@ -137,8 +137,11 @@ def test_robustness(
     print("Testing Fine-tuning Attack")
     print("="*60)
     
+    # Clone model for fine-tuning attack to avoid modifying original
+    import copy
+    fine_tune_model = copy.deepcopy(model)
     fine_tuned_model = fine_tune_attack(
-        model,
+        fine_tune_model,
         train_loader,
         test_loader,
         epochs=fine_tune_epochs,
@@ -172,7 +175,9 @@ def test_robustness(
     print("Testing Pruning Attack")
     print("="*60)
     
-    pruned_model = pruning_attack(model, pruning_ratio=pruning_ratio)
+    # Clone model for pruning attack to avoid modifying original
+    prune_model = copy.deepcopy(model)
+    pruned_model = pruning_attack(prune_model, pruning_ratio=pruning_ratio)
     pruned_acc = evaluate_model(pruned_model, test_loader, device)
     prune_verification = verify_watermark(
         pruned_model,

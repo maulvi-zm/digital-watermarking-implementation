@@ -52,4 +52,17 @@ class SimpleCNN(nn.Module):
             return self.fc2.weight.data.flatten()
         else:
             raise ValueError(f"Unknown layer: {layer_name}")
+    
+    def set_target_layer_params(self, params, layer_name="conv2"):
+        """Set parameters back into a specific layer after watermark embedding."""
+        if layer_name == "conv2":
+            self.conv2.weight.data = params.reshape(self.conv2.weight.data.shape)
+        elif layer_name == "conv1":
+            self.conv1.weight.data = params.reshape(self.conv1.weight.data.shape)
+        elif layer_name == "fc1":
+            self.fc1.weight.data = params.reshape(self.fc1.weight.data.shape)
+        elif layer_name == "fc2":
+            self.fc2.weight.data = params.reshape(self.fc2.weight.data.shape)
+        else:
+            raise ValueError(f"Unknown layer: {layer_name}")
 

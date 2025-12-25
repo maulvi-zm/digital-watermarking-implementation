@@ -32,7 +32,7 @@ TRAIN_CONFIG = {
 # Watermark parameters
 WATERMARK_CONFIG = {
     "length": 128,  # Binary watermark length
-    "lambda": 0.1,  # Embedding strength (regularization coefficient)
+    "lambda": 0.3,  # Embedding strength (regularization coefficient)
     "target_layer": "conv2",  # Layer to embed watermark in
     "seed": 42,  # Random seed for reproducibility
 }

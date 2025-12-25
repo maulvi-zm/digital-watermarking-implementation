@@ -33,14 +33,15 @@ class WatermarkGenerator:
         
         return self.watermark.clone(), self.key.clone()
     
-    def encode(self, params, watermark, key):
+    def encode(self, params, watermark, key, embedding_strength=0.1):
         """
-        Encode watermark into model parameters.
+        Encode watermark into model parameters using fixed normalization.
         
         Args:
             params: Model parameters (flattened tensor)
             watermark: Binary watermark vector
             key: Secret key for embedding
+            embedding_strength: Strength of watermark embedding (0-1)
         
         Returns:
             Encoded parameters
@@ -52,15 +53,38 @@ class WatermarkGenerator:
         
         # Select parameters using key
         selected_indices = key[:len(watermark)].long() % len(params)
+        selected_params = params[selected_indices]
         
-        # Encode watermark by modifying selected parameters
-        # Simple encoding: add small perturbation based on watermark bit
+        # Normalize selected parameters to [0, 1] range using FIXED min/max
+        param_min = selected_params.min()
+        param_max = selected_params.max()
+        
+        if param_max > param_min:
+            normalized_params = (selected_params - param_min) / (param_max - param_min)
+        else:
+            # If all params are same, can't normalize - use small perturbation
+            normalized_params = selected_params.clone()
+        
+        # Encode watermark by modifying normalized parameters to match watermark bits
+        # Use embedding_strength to control how strongly we push towards watermark values
         for i, bit in enumerate(watermark):
-            idx = selected_indices[i].item()
-            if bit > 0.5:  # Bit is 1
-                encoded_params[idx] += 0.01
-            else:  # Bit is 0
-                encoded_params[idx] -= 0.01
+            target_value = bit.item()  # Target normalized value (0 or 1)
+            current_value = normalized_params[i].item()
+            
+            # Move normalized parameter towards target watermark bit
+            # Use embedding_strength to control the magnitude of change
+            new_normalized = current_value + embedding_strength * (target_value - current_value)
+            normalized_params[i] = new_normalized
+        
+        # Denormalize back to original parameter scale
+        if param_max > param_min:
+            encoded_selected = normalized_params * (param_max - param_min) + param_min
+        else:
+            encoded_selected = normalized_params
+        
+        # Update encoded_params with modified selected parameters
+        for i, idx in enumerate(selected_indices):
+            encoded_params[idx] = encoded_selected[i]
         
         return encoded_params
     
@@ -81,14 +105,20 @@ class WatermarkGenerator:
         
         extracted = torch.zeros(watermark_length)
         selected_indices = key[:watermark_length].long() % len(params)
+        selected_params = params[selected_indices]
         
-        # Decode by checking parameter values
-        # Threshold-based decoding
-        threshold = params[selected_indices].mean()
+        # Normalize selected parameters to [0, 1] range (same as embedding)
+        param_min = selected_params.min()
+        param_max = selected_params.max()
+        if param_max > param_min:
+            normalized_params = (selected_params - param_min) / (param_max - param_min)
+        else:
+            normalized_params = selected_params
         
+        # Extract watermark by thresholding normalized parameters
+        # Since watermark bits are 0 or 1, use 0.5 as threshold on normalized [0,1] values
         for i in range(watermark_length):
-            idx = selected_indices[i].item()
-            if params[idx] > threshold:
+            if normalized_params[i] > 0.5:
                 extracted[i] = 1.0
             else:
                 extracted[i] = 0.0

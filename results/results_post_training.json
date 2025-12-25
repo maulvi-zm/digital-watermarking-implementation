@@ -1,0 +1,19 @@
+{
+  "baseline": {
+    "accuracy": 99.3
+  },
+  "watermarked": {
+    "accuracy": 99.3,
+    "fidelity": {
+      "accuracy_drop": 0.0,
+      "relative_drop": 0.0
+    }
+  },
+  "verification": {
+    "bit_accuracy": 0.859375,
+    "exact_match": false,
+    "matches": 110,
+    "total": 128,
+    "hamming_distance": 18
+  }
+}

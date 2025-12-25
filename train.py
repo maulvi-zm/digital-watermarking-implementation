@@ -11,7 +11,7 @@ from tqdm import tqdm
 import config
 from src.model import SimpleCNN
 from src.watermark import WatermarkGenerator
-from src.embedder import train_with_watermark
+# Post-training embedding approach - no longer using train_with_watermark
 from src.utils import get_mnist_loaders, save_model, evaluate_model
 
 
@@ -111,27 +111,59 @@ def main():
     }, config.PATHS["watermark_key"])
     print(f"Watermark key saved to {config.PATHS['watermark_key']}")
     
-    # Train watermarked model
+    # Train watermarked model (normally, without watermark loss)
     print("\n" + "="*80)
     print("TRAINING WATERMARKED MODEL")
     print("="*80)
     watermarked_model = SimpleCNN(num_classes=config.MODEL_CONFIG["num_classes"])
-    watermarked_model, history = train_with_watermark(
+    watermarked_model = train_baseline(
         watermarked_model,
         train_loader,
         test_loader,
-        watermark_gen,
-        watermark,
-        key,
-        lambda_reg=config.WATERMARK_CONFIG["lambda"],
         epochs=config.TRAIN_CONFIG["epochs"],
         lr=config.TRAIN_CONFIG["learning_rate"],
-        device=device,
-        target_layer=config.WATERMARK_CONFIG["target_layer"]
+        device=device
     )
     
     watermarked_acc = evaluate_model(watermarked_model, test_loader, device)
-    print(f"\nWatermarked Model Final Accuracy: {watermarked_acc:.2f}%")
+    print(f"\nWatermarked Model Accuracy (before embedding): {watermarked_acc:.2f}%")
+    
+    # Embed watermark post-training
+    print("\n" + "="*80)
+    print("EMBEDDING WATERMARK (POST-TRAINING)")
+    print("="*80)
+    target_layer = config.WATERMARK_CONFIG["target_layer"]
+    
+    # Get parameters from target layer
+    params = watermarked_model.get_target_layer_params(target_layer)
+    print(f"Original parameters shape: {params.shape}")
+    print(f"Watermark length: {len(watermark)}")
+    
+    # Encode watermark into parameters
+    # Use lambda as embedding strength (convert from regularization coefficient to embedding strength)
+    embedding_strength = min(config.WATERMARK_CONFIG["lambda"], 1.0)
+    encoded_params = watermark_gen.encode(params, watermark, key, embedding_strength=embedding_strength)
+    
+    # Set encoded parameters back into model
+    watermarked_model.set_target_layer_params(encoded_params, target_layer)
+    
+    # Verify watermark was embedded
+    print("Verifying watermark embedding...")
+    from src.extractor import verify_watermark
+    verification = verify_watermark(
+        watermarked_model,
+        watermark_gen,
+        watermark,
+        key,
+        target_layer=target_layer
+    )
+    print(f"Watermark bit accuracy after embedding: {verification['bit_accuracy']:.4f} ({verification['bit_accuracy']*100:.2f}%)")
+    print(f"Matches: {verification['matches']}/{verification['total']}")
+    
+    # Re-evaluate model accuracy after watermark embedding
+    watermarked_acc_after = evaluate_model(watermarked_model, test_loader, device)
+    print(f"\nWatermarked Model Accuracy (after embedding): {watermarked_acc_after:.2f}%")
+    print(f"Accuracy change: {watermarked_acc_after - watermarked_acc:.2f}%")
     
     # Save watermarked model
     save_model(watermarked_model, config.PATHS["watermarked_model"])

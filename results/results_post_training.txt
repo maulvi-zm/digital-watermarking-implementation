@@ -1,0 +1,18 @@
+================================================================================
+EXPERIMENTAL RESULTS
+================================================================================
+
+BASELINE MODEL:
+  Test Accuracy: 99.30%
+
+WATERMARKED MODEL:
+  Test Accuracy: 99.30%
+  Model Fidelity: {'accuracy_drop': 0.0, 'relative_drop': 0.0}
+
+WATERMARK VERIFICATION:
+  Bit Accuracy: 0.8594
+  Exact Match: False
+  Matches: 110/128
+  Hamming Distance: 18
+
+================================================================================

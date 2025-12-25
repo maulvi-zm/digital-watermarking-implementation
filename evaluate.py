@@ -88,12 +88,14 @@ def main():
         "verification": reliability_results
     }
     
-    # Save results
+    # Save results with post-training suffix
     print("\nSaving results...")
+    results_json_path = config.PATHS["results_json"].parent / "results_post_training.json"
+    results_txt_path = config.PATHS["results_txt"].parent / "results_post_training.txt"
     save_results(
         results,
-        config.PATHS["results_json"],
-        config.PATHS["results_txt"]
+        results_json_path,
+        results_txt_path
     )
     
     # Display summary

@@ -1,0 +1,29 @@
+================================================================================
+EXPERIMENTAL RESULTS
+================================================================================
+
+BASELINE MODEL:
+  Test Accuracy: 99.28%
+
+WATERMARKED MODEL:
+  Test Accuracy: 99.33%
+  Model Fidelity: {'accuracy_drop': -0.04999999999999716, 'relative_drop': -0.05036261079774089}
+
+WATERMARK VERIFICATION:
+  Bit Accuracy: 0.4219
+  Exact Match: False
+  Matches: 54/128
+  Hamming Distance: 74
+
+ROBUSTNESS TESTS:
+  Fine-tuning Attack:
+    Accuracy After Attack: 99.46%
+    Watermark Bit Accuracy: 0.4375
+    Watermark Survived: False
+
+  Pruning Attack:
+    Accuracy After Attack: 99.45%
+    Watermark Bit Accuracy: 0.4375
+    Watermark Survived: False
+
+================================================================================

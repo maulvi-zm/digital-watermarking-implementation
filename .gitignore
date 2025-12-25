@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Data (already ignored by parent .gitignore, but keeping for clarity)
+data/
+
+# Models (optional - uncomment if you don't want to track model files)
+# models/*.pth
+
+# Results (optional - uncomment if you don't want to track results)
+# results/
+

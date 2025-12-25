@@ -1,0 +1,33 @@
+{
+  "verification": {
+    "bit_accuracy": 0.421875,
+    "exact_match": false,
+    "matches": 54,
+    "total": 128,
+    "hamming_distance": 74
+  },
+  "robustness": {
+    "fine_tuning": {
+      "accuracy": 99.46,
+      "bit_accuracy": 0.4375,
+      "exact_match": false,
+      "survived": false
+    },
+    "pruning": {
+      "accuracy": 99.45,
+      "bit_accuracy": 0.4375,
+      "exact_match": false,
+      "survived": false
+    }
+  },
+  "baseline": {
+    "accuracy": 99.28
+  },
+  "watermarked": {
+    "accuracy": 99.33,
+    "fidelity": {
+      "accuracy_drop": -0.04999999999999716,
+      "relative_drop": -0.05036261079774089
+    }
+  }
+}

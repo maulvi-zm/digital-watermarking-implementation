@@ -58,3 +58,4 @@ def verify_watermark(model, watermark_gen, original_watermark, key, target_layer
         **comparison
     }
 
+

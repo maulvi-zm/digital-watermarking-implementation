@@ -138,3 +138,4 @@ def compute_watermark_loss(params, watermark, key, lambda_reg):
     
     return watermark_loss
 
+

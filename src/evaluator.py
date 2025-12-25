@@ -60,3 +60,4 @@ def evaluate_reliability(model, watermark_gen, original_watermark, key, target_l
         "hamming_distance": verification["hamming_distance"]
     }
 
+
